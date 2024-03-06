@@ -14,10 +14,10 @@ EQ            = =
 
 CC            = gcc
 CXX           = g++
-DEFINES       = -DQT_NO_DEBUG -DQT_GUI_LIB -DQT_CORE_LIB
+DEFINES       = -DQT_NO_DEBUG -DQT_WIDGETS_LIB -DQT_GUI_LIB -DQT_CORE_LIB
 CFLAGS        = -pipe -O2 -Wall -Wextra -D_REENTRANT $(DEFINES)
 CXXFLAGS      = -pipe -O2 -Wall -Wextra -D_REENTRANT $(DEFINES)
-INCPATH       = -I. -I. -I/usr/include/qt6 -I/usr/include/qt6/QtGui -I/usr/include/qt6/QtCore -I. -I/usr/lib64/qt6/mkspecs/linux-g++
+INCPATH       = -I. -I. -I/usr/include/qt6 -I/usr/include/qt6/QtWidgets -I/usr/include/qt6/QtGui -I/usr/include/qt6/QtCore -I. -I/usr/lib64/qt6/mkspecs/linux-g++
 QMAKE         = /usr/bin/qmake
 DEL_FILE      = rm -f
 CHK_DIR_EXISTS= test -d
@@ -40,7 +40,7 @@ DISTNAME      = stable1.0.0
 DISTDIR = /home/httpanimations/Desktop/Kilt/stable/.tmp/stable1.0.0
 LINK          = g++
 LFLAGS        = -Wl,-O1 -Wl,-rpath-link,/usr/lib64
-LIBS          = $(SUBLIBS) /usr/lib64/libQt6Gui.so /usr/lib64/libQt6Core.so -lpthread -lGLX -lOpenGL   
+LIBS          = $(SUBLIBS) /usr/lib64/libQt6Widgets.so /usr/lib64/libQt6Gui.so /usr/lib64/libQt6Core.so -lpthread -lGLX -lOpenGL   
 AR            = ar cqs
 RANLIB        = 
 SED           = sed
@@ -114,6 +114,7 @@ DIST          = /usr/lib64/qt6/mkspecs/features/spec_pre.prf \
 		/usr/lib64/qt6/mkspecs/features/resources.prf \
 		/usr/lib64/qt6/mkspecs/features/moc.prf \
 		/usr/lib64/qt6/mkspecs/features/unix/opengl.prf \
+		/usr/lib64/qt6/mkspecs/features/uic.prf \
 		/usr/lib64/qt6/mkspecs/features/unix/thread.prf \
 		/usr/lib64/qt6/mkspecs/features/qmake_use.prf \
 		/usr/lib64/qt6/mkspecs/features/file_copies.prf \
@@ -192,6 +193,7 @@ Makefile: stable.pro /usr/lib64/qt6/mkspecs/linux-g++/qmake.conf /usr/lib64/qt6/
 		/usr/lib64/qt6/mkspecs/features/resources.prf \
 		/usr/lib64/qt6/mkspecs/features/moc.prf \
 		/usr/lib64/qt6/mkspecs/features/unix/opengl.prf \
+		/usr/lib64/qt6/mkspecs/features/uic.prf \
 		/usr/lib64/qt6/mkspecs/features/unix/thread.prf \
 		/usr/lib64/qt6/mkspecs/features/qmake_use.prf \
 		/usr/lib64/qt6/mkspecs/features/file_copies.prf \
@@ -200,6 +202,7 @@ Makefile: stable.pro /usr/lib64/qt6/mkspecs/linux-g++/qmake.conf /usr/lib64/qt6/
 		/usr/lib64/qt6/mkspecs/features/yacc.prf \
 		/usr/lib64/qt6/mkspecs/features/lex.prf \
 		stable.pro \
+		/usr/lib64/libQt6Widgets.prl \
 		/usr/lib64/libQt6Gui.prl \
 		/usr/lib64/libQt6Core.prl
 	$(QMAKE) -o Makefile stable.pro
@@ -262,6 +265,7 @@ Makefile: stable.pro /usr/lib64/qt6/mkspecs/linux-g++/qmake.conf /usr/lib64/qt6/
 /usr/lib64/qt6/mkspecs/features/resources.prf:
 /usr/lib64/qt6/mkspecs/features/moc.prf:
 /usr/lib64/qt6/mkspecs/features/unix/opengl.prf:
+/usr/lib64/qt6/mkspecs/features/uic.prf:
 /usr/lib64/qt6/mkspecs/features/unix/thread.prf:
 /usr/lib64/qt6/mkspecs/features/qmake_use.prf:
 /usr/lib64/qt6/mkspecs/features/file_copies.prf:
@@ -270,6 +274,7 @@ Makefile: stable.pro /usr/lib64/qt6/mkspecs/linux-g++/qmake.conf /usr/lib64/qt6/
 /usr/lib64/qt6/mkspecs/features/yacc.prf:
 /usr/lib64/qt6/mkspecs/features/lex.prf:
 stable.pro:
+/usr/lib64/libQt6Widgets.prl:
 /usr/lib64/libQt6Gui.prl:
 /usr/lib64/libQt6Core.prl:
 qmake: FORCE
@@ -326,12 +331,14 @@ compiler_moc_header_clean:
 moc_mainwindow.cpp: mainwindow.h \
 		moc_predefs.h \
 		/usr/lib64/qt6/libexec/moc
-	/usr/lib64/qt6/libexec/moc $(DEFINES) --include /home/httpanimations/Desktop/Kilt/stable/moc_predefs.h -I/usr/lib64/qt6/mkspecs/linux-g++ -I/home/httpanimations/Desktop/Kilt/stable -I/home/httpanimations/Desktop/Kilt/stable -I/usr/include/qt6 -I/usr/include/qt6/QtGui -I/usr/include/qt6/QtCore -I/usr/include/c++/13 -I/usr/include/c++/13/x86_64-redhat-linux -I/usr/include/c++/13/backward -I/usr/lib/gcc/x86_64-redhat-linux/13/include -I/usr/local/include -I/usr/include mainwindow.h -o moc_mainwindow.cpp
+	/usr/lib64/qt6/libexec/moc $(DEFINES) --include /home/httpanimations/Desktop/Kilt/stable/moc_predefs.h -I/usr/lib64/qt6/mkspecs/linux-g++ -I/home/httpanimations/Desktop/Kilt/stable -I/home/httpanimations/Desktop/Kilt/stable -I/usr/include/qt6 -I/usr/include/qt6/QtWidgets -I/usr/include/qt6/QtGui -I/usr/include/qt6/QtCore -I/usr/include/c++/13 -I/usr/include/c++/13/x86_64-redhat-linux -I/usr/include/c++/13/backward -I/usr/lib/gcc/x86_64-redhat-linux/13/include -I/usr/local/include -I/usr/include mainwindow.h -o moc_mainwindow.cpp
 
 compiler_moc_objc_header_make_all:
 compiler_moc_objc_header_clean:
 compiler_moc_source_make_all:
 compiler_moc_source_clean:
+compiler_uic_make_all:
+compiler_uic_clean:
 compiler_yacc_decl_make_all:
 compiler_yacc_decl_clean:
 compiler_yacc_impl_make_all:
