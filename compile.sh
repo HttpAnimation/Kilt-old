@@ -1,3 +1,3 @@
 # Compile.sh
 
-g++ -std=c++11 -o kilt main.cpp -lTLTK -lX11 -lpthread
+g++ -o kilt main.cpp `pkg-config --cflags --libs gtk+-3.0`
