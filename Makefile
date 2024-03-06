@@ -52,7 +52,7 @@ OBJECTS_DIR   = ./
 
 ####### Files
 
-SOURCES       = main.cpp moc_mainwindow.cpp
+SOURCES       = main.cpp moc_mainwindow.cpp mainwindow.h
 OBJECTS       = main.o \
 		moc_mainwindow.o
 DIST          = /usr/lib64/qt6/mkspecs/features/spec_pre.prf \
