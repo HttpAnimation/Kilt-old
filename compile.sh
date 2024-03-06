@@ -1,2 +1,4 @@
+# Compile.sh
+
 qmake
 make
