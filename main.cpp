@@ -1,5 +1,6 @@
 #include <gtk/gtk.h>
 #include <iostream>
+#include <fstream>
 #include <dirent.h>
 #include <vector>
 
@@ -8,6 +9,9 @@ struct FileData {
     std::string name;
     std::string path;
 };
+
+// Forward declaration of the callback function
+void on_open_folder_clicked(GtkWidget *widget, gpointer data);
 
 // Function to list files in a directory
 std::vector<FileData> listFilesInDirectory(const std::string &directory) {
@@ -42,7 +46,7 @@ void on_file_selected(GtkWidget *widget, gpointer data) {
         std::cout << "Opening file: " << file_path << std::endl;
 
         // Read the file content and display in text view
-        void on_open_folder_clicked(GtkWidget *widget, gpointer data);
+        std::ifstream file_stream(file_path);
         if (file_stream) {
             std::string content((std::istreambuf_iterator<char>(file_stream)), (std::istreambuf_iterator<char>()));
             GtkWidget *text_view = GTK_WIDGET(data);
@@ -50,6 +54,49 @@ void on_file_selected(GtkWidget *widget, gpointer data) {
             gtk_text_buffer_set_text(buffer, content.c_str(), -1);
         }
     }
+}
+
+// Callback function for when the "Open Folder" button is clicked
+void on_open_folder_clicked(GtkWidget *widget, gpointer data) {
+    g_print("Opening folder...\n");
+    // Code to open a folder and populate the sidebar with files
+    GtkWidget *dialog;
+    GtkFileChooserAction action = GTK_FILE_CHOOSER_ACTION_SELECT_FOLDER;
+    gint res;
+
+    dialog = gtk_file_chooser_dialog_new ("Open Folder",
+                                          NULL,
+                                          action,
+                                          "_Cancel",
+                                          GTK_RESPONSE_CANCEL,
+                                          "_Open",
+                                          GTK_RESPONSE_ACCEPT,
+                                          NULL);
+
+    res = gtk_dialog_run (GTK_DIALOG (dialog));
+    if (res == GTK_RESPONSE_ACCEPT)
+    {
+        char *folder_path;
+        GtkFileChooser *chooser = GTK_FILE_CHOOSER (dialog);
+        folder_path = gtk_file_chooser_get_filename (chooser);
+        g_print ("Folder selected: %s\n", folder_path);
+
+        // List files in the selected folder
+        std::vector<FileData> files = listFilesInDirectory(folder_path);
+
+        // Add files to the sidebar
+        GtkTreeIter iter;
+        GtkTreeStore *model = GTK_TREE_STORE(data);
+        gtk_tree_store_clear(model);
+        for (const auto &file : files) {
+            gtk_tree_store_append(model, &iter, NULL);
+            gtk_tree_store_set(model, &iter, 0, file.name.c_str(), 1, file.path.c_str(), -1);
+        }
+
+        g_free (folder_path);
+    }
+
+    gtk_widget_destroy (dialog);
 }
 
 int main(int argc, char *argv[]) {
