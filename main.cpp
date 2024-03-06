@@ -122,7 +122,7 @@ int main(int argc, char *argv[]) {
     GtkWidget *button_open_folder = gtk_button_new_with_label("Open Folder");
 
     // Create the tree view
-    GtkTreeStore *tree_store = gtk_tree_store_new(2, G_TYPE_STRING, G_TYPE_STRING);
+    GtkTreeStore *tree_store = gtk_tree_store_new(1, G_TYPE_STRING);
     GtkWidget *tree_view = gtk_tree_view_new_with_model(GTK_TREE_MODEL(tree_store));
     g_object_unref(tree_store); // Free tree store when the view is destroyed
 
