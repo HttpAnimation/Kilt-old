@@ -4,6 +4,30 @@
 void on_open_folder_clicked(GtkWidget *widget, gpointer data) {
     g_print("Opening folder...\n");
     // Code to open a folder and populate the sidebar with files
+    GtkWidget *dialog;
+    GtkFileChooserAction action = GTK_FILE_CHOOSER_ACTION_SELECT_FOLDER;
+    gint res;
+
+    dialog = gtk_file_chooser_dialog_new ("Open Folder",
+                                          NULL,
+                                          action,
+                                          "_Cancel",
+                                          GTK_RESPONSE_CANCEL,
+                                          "_Open",
+                                          GTK_RESPONSE_ACCEPT,
+                                          NULL);
+
+    res = gtk_dialog_run (GTK_DIALOG (dialog));
+    if (res == GTK_RESPONSE_ACCEPT)
+    {
+        char *folder_path;
+        GtkFileChooser *chooser = GTK_FILE_CHOOSER (dialog);
+        folder_path = gtk_file_chooser_get_filename (chooser);
+        g_print ("Folder selected: %s\n", folder_path);
+        g_free (folder_path);
+    }
+
+    gtk_widget_destroy (dialog);
 }
 
 int main(int argc, char *argv[]) {
