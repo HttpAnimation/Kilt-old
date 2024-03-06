@@ -1,3 +1,6 @@
+// main.ccp
+
+
 #include <gtk/gtk.h>
 #include <iostream>
 #include <dirent.h>
