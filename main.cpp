@@ -144,7 +144,7 @@ int main(int argc, char *argv[]) {
 
     // Create a text view for editing files
     GtkWidget *text_view = gtk_text_view_new();
-    gtk_grid_attach(GTK_GRID(grid), text_view, 0, 1, 2, 1);
+    gtk_grid_attach(GTK_GRID(grid), text_view, 1, 1, 1, 1);
     gtk_widget_set_vexpand(text_view, TRUE); // Make the text view expand to fill available space
     gtk_widget_set_hexpand(text_view, TRUE);
 
