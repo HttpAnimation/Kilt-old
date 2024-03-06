@@ -12,6 +12,7 @@ struct FileData {
 
 // Forward declaration of the callback function
 void on_open_folder_clicked(GtkWidget *widget, gpointer data);
+void on_file_selected(GtkWidget *widget, gpointer data);
 
 // Function to list files in a directory
 std::vector<FileData> listFilesInDirectory(const std::string &directory) {
@@ -107,6 +108,7 @@ int main(int argc, char *argv[]) {
     GtkWidget *window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
     gtk_window_set_title(GTK_WINDOW(window), "Kilt IDE (VSC Style)");
     gtk_window_set_default_size(GTK_WINDOW(window), 800, 600);
+    gtk_window_set_resizable(GTK_WINDOW(window), FALSE); // Prevent resizing
     g_signal_connect(window, "destroy", G_CALLBACK(gtk_main_quit), NULL);
 
     // Create a box layout
