@@ -1,7 +1,5 @@
 #include <gtk/gtk.h>
 #include <iostream>
-#include <fstream>
-#include <sstream>
 #include <dirent.h>
 #include <vector>
 
@@ -32,77 +30,25 @@ std::vector<FileData> listFilesInDirectory(const std::string &directory) {
     return files;
 }
 
-// Callback function for when the "Open Folder" button is clicked
-void on_open_folder_clicked(GtkWidget *widget, gpointer data) {
-    g_print("Opening folder...\n");
-    // Code to open a folder and populate the sidebar with files
-    GtkWidget *dialog;
-    GtkFileChooserAction action = GTK_FILE_CHOOSER_ACTION_SELECT_FOLDER;
-    gint res;
-
-    dialog = gtk_file_chooser_dialog_new ("Open Folder",
-                                          NULL,
-                                          action,
-                                          "_Cancel",
-                                          GTK_RESPONSE_CANCEL,
-                                          "_Open",
-                                          GTK_RESPONSE_ACCEPT,
-                                          NULL);
-
-    res = gtk_dialog_run (GTK_DIALOG (dialog));
-    if (res == GTK_RESPONSE_ACCEPT)
-    {
-        char *folder_path;
-        GtkFileChooser *chooser = GTK_FILE_CHOOSER (dialog);
-        folder_path = gtk_file_chooser_get_filename (chooser);
-        g_print ("Folder selected: %s\n", folder_path);
-
-        // List files in the selected folder
-        std::vector<FileData> files = listFilesInDirectory(folder_path);
-
-        // Add files to the sidebar
-        GtkTreeIter iter;
-        GtkTreeStore *model = GTK_TREE_STORE(data);
-        gtk_tree_store_clear(model);
-        for (const auto &file : files) {
-            gtk_tree_store_append(model, &iter, NULL);
-            gtk_tree_store_set(model, &iter, 0, file.name.c_str(), 1, file.path.c_str(), -1);
-        }
-
-        g_free (folder_path);
-    }
-
-    gtk_widget_destroy (dialog);
-}
-
-// Callback function for when a file is selected in the sidebar
-void on_file_selected(GtkTreeView *tree_view, GtkTreePath *path, GtkTreeViewColumn *column, gpointer data) {
-    GtkTreeModel *model;
+// Callback function for when a file is selected
+void on_file_selected(GtkWidget *widget, gpointer data) {
+    GtkTreeSelection *selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(widget));
     GtkTreeIter iter;
-    gchar *file_name;
-    gchar *file_path;
+    if (gtk_tree_selection_get_selected(selection, NULL, &iter)) {
+        GtkTreeModel *model;
+        gchar *file_path;
+        model = gtk_tree_view_get_model(GTK_TREE_VIEW(widget));
+        gtk_tree_model_get(model, &iter, 1, &file_path, -1);
+        std::cout << "Opening file: " << file_path << std::endl;
 
-    model = gtk_tree_view_get_model(tree_view);
-
-    if (gtk_tree_model_get_iter(model, &iter, path)) {
-        gtk_tree_model_get(model, &iter, 0, &file_name, 1, &file_path, -1);
-
-        std::ifstream file_stream(file_path);
-        if (file_stream.is_open()) {
-            std::stringstream buffer;
-            buffer << file_stream.rdbuf();
-            std::string file_content = buffer.str();
-            file_stream.close();
-
-            // Display file content or open an editor window here
-            std::cout << "Editing file: " << file_path << std::endl;
-            std::cout << "File content:\n" << file_content << std::endl;
-        } else {
-            std::cerr << "Failed to open file: " << file_path << std::endl;
+        // Read the file content and display in text view
+        void on_open_folder_clicked(GtkWidget *widget, gpointer data);
+        if (file_stream) {
+            std::string content((std::istreambuf_iterator<char>(file_stream)), (std::istreambuf_iterator<char>()));
+            GtkWidget *text_view = GTK_WIDGET(data);
+            GtkTextBuffer *buffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW(text_view));
+            gtk_text_buffer_set_text(buffer, content.c_str(), -1);
         }
-
-        g_free(file_name);
-        g_free(file_path);
     }
 }
 
@@ -135,9 +81,6 @@ int main(int argc, char *argv[]) {
     // Connect signals to button clicks
     g_signal_connect(button_open_folder, "clicked", G_CALLBACK(on_open_folder_clicked), tree_store);
 
-    // Connect signal for file selection
-    g_signal_connect(tree_view, "row-activated", G_CALLBACK(on_file_selected), NULL);
-
     // Add buttons to the sidebar
     gtk_box_pack_start(GTK_BOX(sidebar_box), button_open_folder, FALSE, FALSE, 0);
 
@@ -150,6 +93,13 @@ int main(int argc, char *argv[]) {
     gtk_tree_view_append_column(GTK_TREE_VIEW(tree_view), column);
 
     gtk_container_add(GTK_CONTAINER(scrolled_window), tree_view);
+
+    // Create a text view for editing files
+    GtkWidget *text_view = gtk_text_view_new();
+    gtk_box_pack_start(GTK_BOX(box), text_view, TRUE, TRUE, 0);
+
+    // Connect signal for file selection
+    g_signal_connect(tree_view, "cursor-changed", G_CALLBACK(on_file_selected), text_view);
 
     // Show all widgets
     gtk_widget_show_all(window);
