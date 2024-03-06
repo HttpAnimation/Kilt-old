@@ -114,17 +114,22 @@ int main(int argc, char *argv[]) {
     GtkWidget *grid = gtk_grid_new();
     gtk_container_add(GTK_CONTAINER(window), grid);
 
+    // Create a scrolled window for the file tree view
+    GtkWidget *scrolled_window = gtk_scrolled_window_new(NULL, NULL);
+    gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(scrolled_window), GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC);
+    gtk_grid_attach(GTK_GRID(grid), scrolled_window, 0, 0, 1, 1);
+
+    // Create the tree view
+    GtkTreeStore *tree_store = gtk_tree_store_new(2, G_TYPE_STRING, G_TYPE_STRING);
+    GtkWidget *tree_view = gtk_tree_view_new_with_model(GTK_TREE_MODEL(tree_store));
+    g_object_unref(tree_store); // Free tree store when the view is destroyed
+
     // Create a vertical box layout for the sidebar
     GtkWidget *sidebar_box = gtk_box_new(GTK_ORIENTATION_VERTICAL, 0);
-    gtk_grid_attach(GTK_GRID(grid), sidebar_box, 0, 0, 1, 1);
+    gtk_container_add(GTK_CONTAINER(scrolled_window), sidebar_box);
 
     // Create buttons
     GtkWidget *button_open_folder = gtk_button_new_with_label("Open Folder");
-
-    // Create the tree view
-    GtkTreeStore *tree_store = gtk_tree_store_new(1, G_TYPE_STRING);
-    GtkWidget *tree_view = gtk_tree_view_new_with_model(GTK_TREE_MODEL(tree_store));
-    g_object_unref(tree_store); // Free tree store when the view is destroyed
 
     // Connect signals to button clicks
     g_signal_connect(button_open_folder, "clicked", G_CALLBACK(on_open_folder_clicked), tree_store);
@@ -132,19 +137,12 @@ int main(int argc, char *argv[]) {
     // Add buttons to the sidebar
     gtk_box_pack_start(GTK_BOX(sidebar_box), button_open_folder, FALSE, FALSE, 0);
 
-    // Create a scrolled window for the file tree view
-    GtkWidget *scrolled_window = gtk_scrolled_window_new(NULL, NULL);
-    gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(scrolled_window), GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC);
-    gtk_grid_attach(GTK_GRID(grid), scrolled_window, 1, 0, 1, 1);
-
     GtkTreeViewColumn *column = gtk_tree_view_column_new_with_attributes("Files", gtk_cell_renderer_text_new(), "text", 0, NULL);
     gtk_tree_view_append_column(GTK_TREE_VIEW(tree_view), column);
 
-    gtk_container_add(GTK_CONTAINER(scrolled_window), tree_view);
-
     // Create a text view for editing files
     GtkWidget *text_view = gtk_text_view_new();
-    gtk_grid_attach(GTK_GRID(grid), text_view, 1, 1, 1, 1);
+    gtk_grid_attach(GTK_GRID(grid), text_view, 1, 0, 1, 1);
     gtk_widget_set_vexpand(text_view, TRUE); // Make the text view expand to fill available space
     gtk_widget_set_hexpand(text_view, TRUE);
 
