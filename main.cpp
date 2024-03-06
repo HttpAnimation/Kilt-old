@@ -1,4 +1,25 @@
 #include <gtk/gtk.h>
+#include <iostream>
+#include <dirent.h>
+#include <vector>
+
+// Function to list files in a directory
+std::vector<std::string> listFilesInDirectory(const std::string &directory) {
+    std::vector<std::string> files;
+    DIR *dir;
+    struct dirent *ent;
+    if ((dir = opendir(directory.c_str())) != NULL) {
+        while ((ent = readdir(dir)) != NULL) {
+            if (ent->d_type == DT_REG) {
+                files.push_back(std::string(ent->d_name));
+            }
+        }
+        closedir(dir);
+    } else {
+        perror("Failed to open directory");
+    }
+    return files;
+}
 
 // Callback function for when the "Open Folder" button is clicked
 void on_open_folder_clicked(GtkWidget *widget, gpointer data) {
@@ -24,6 +45,19 @@ void on_open_folder_clicked(GtkWidget *widget, gpointer data) {
         GtkFileChooser *chooser = GTK_FILE_CHOOSER (dialog);
         folder_path = gtk_file_chooser_get_filename (chooser);
         g_print ("Folder selected: %s\n", folder_path);
+
+        // List files in the selected folder
+        std::vector<std::string> files = listFilesInDirectory(folder_path);
+
+        // Add files to the sidebar
+        GtkTreeIter iter;
+        GtkTreeModel *model = gtk_tree_view_get_model(GTK_TREE_VIEW(data));
+        gtk_tree_store_clear(GTK_TREE_STORE(model));
+        for (const auto &file : files) {
+            gtk_tree_store_append(GTK_TREE_STORE(model), &iter, NULL);
+            gtk_tree_store_set(GTK_TREE_STORE(model), &iter, 0, file.c_str(), -1);
+        }
+
         g_free (folder_path);
     }
 
