@@ -1,18 +1,9 @@
 #include <gtk/gtk.h>
 
-// Callback function for when the "New File" button is clicked
-void on_new_file_clicked(GtkWidget *widget, gpointer data) {
-    g_print("Creating a new file...\n");
-}
-
-// Callback function for when the "Open File" button is clicked
-void on_open_file_clicked(GtkWidget *widget, gpointer data) {
-    g_print("Opening a file...\n");
-}
-
-// Callback function for when the "Save File" button is clicked
-void on_save_file_clicked(GtkWidget *widget, gpointer data) {
-    g_print("Saving a file...\n");
+// Callback function for when the "Open Folder" button is clicked
+void on_open_folder_clicked(GtkWidget *widget, gpointer data) {
+    g_print("Opening folder...\n");
+    // Code to open a folder and populate the sidebar with files
 }
 
 int main(int argc, char *argv[]) {
@@ -21,28 +12,41 @@ int main(int argc, char *argv[]) {
 
     // Create a new window
     GtkWidget *window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
-    gtk_window_set_title(GTK_WINDOW(window), "Kilt IDE");
-    gtk_window_set_default_size(GTK_WINDOW(window), 400, 300);
+    gtk_window_set_title(GTK_WINDOW(window), "Kilt IDE (VSC Style)");
+    gtk_window_set_default_size(GTK_WINDOW(window), 800, 600);
     g_signal_connect(window, "destroy", G_CALLBACK(gtk_main_quit), NULL);
 
     // Create a box layout
-    GtkWidget *box = gtk_box_new(GTK_ORIENTATION_VERTICAL, 5);
+    GtkWidget *box = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 0);
     gtk_container_add(GTK_CONTAINER(window), box);
 
+    // Create a vertical box layout for the sidebar
+    GtkWidget *sidebar_box = gtk_box_new(GTK_ORIENTATION_VERTICAL, 0);
+    gtk_box_pack_start(GTK_BOX(box), sidebar_box, FALSE, TRUE, 0);
+
     // Create buttons
-    GtkWidget *button_new = gtk_button_new_with_label("New File");
-    GtkWidget *button_open = gtk_button_new_with_label("Open File");
-    GtkWidget *button_save = gtk_button_new_with_label("Save File");
+    GtkWidget *button_open_folder = gtk_button_new_with_label("Open Folder");
 
     // Connect signals to button clicks
-    g_signal_connect(button_new, "clicked", G_CALLBACK(on_new_file_clicked), NULL);
-    g_signal_connect(button_open, "clicked", G_CALLBACK(on_open_file_clicked), NULL);
-    g_signal_connect(button_save, "clicked", G_CALLBACK(on_save_file_clicked), NULL);
+    g_signal_connect(button_open_folder, "clicked", G_CALLBACK(on_open_folder_clicked), NULL);
 
-    // Add buttons to the box layout
-    gtk_box_pack_start(GTK_BOX(box), button_new, FALSE, FALSE, 0);
-    gtk_box_pack_start(GTK_BOX(box), button_open, FALSE, FALSE, 0);
-    gtk_box_pack_start(GTK_BOX(box), button_save, FALSE, FALSE, 0);
+    // Add buttons to the sidebar
+    gtk_box_pack_start(GTK_BOX(sidebar_box), button_open_folder, FALSE, FALSE, 0);
+
+    // Create a scrolled window for the file tree view
+    GtkWidget *scrolled_window = gtk_scrolled_window_new(NULL, NULL);
+    gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(scrolled_window), GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC);
+    gtk_box_pack_start(GTK_BOX(box), scrolled_window, TRUE, TRUE, 0);
+
+    // Create the tree view
+    GtkTreeStore *tree_store = gtk_tree_store_new(1, G_TYPE_STRING);
+    GtkWidget *tree_view = gtk_tree_view_new_with_model(GTK_TREE_MODEL(tree_store));
+    g_object_unref(tree_store); // Free tree store when the view is destroyed
+
+    GtkTreeViewColumn *column = gtk_tree_view_column_new_with_attributes("Files", gtk_cell_renderer_text_new(), "text", 0, NULL);
+    gtk_tree_view_append_column(GTK_TREE_VIEW(tree_view), column);
+
+    gtk_container_add(GTK_CONTAINER(scrolled_window), tree_view);
 
     // Show all widgets
     gtk_widget_show_all(window);
