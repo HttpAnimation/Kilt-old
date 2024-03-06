@@ -1,5 +1,5 @@
 // mainwindow.h
-
+// Removed
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
