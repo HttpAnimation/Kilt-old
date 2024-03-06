@@ -1,8 +1,6 @@
-// main.ccp
-
-
 #include <gtk/gtk.h>
 #include <iostream>
+#include <fstream>
 #include <dirent.h>
 #include <vector>
 
@@ -76,6 +74,24 @@ void on_open_folder_clicked(GtkWidget *widget, gpointer data) {
     gtk_widget_destroy (dialog);
 }
 
+// Callback function for when a file is selected in the sidebar
+void on_file_selected(GtkTreeView *tree_view, GtkTreePath *path, GtkTreeViewColumn *column, gpointer data) {
+    GtkTreeIter iter;
+    GtkTreeModel *model;
+    if (gtk_tree_view_get_selection(tree_view) && gtk_tree_model_get_iter(GTK_TREE_MODEL(data), &iter, path)) {
+        char *file_path;
+        gtk_tree_model_get(GTK_TREE_MODEL(data), &iter, 1, &file_path, -1);
+        g_print("File selected: %s\n", file_path);
+        // Open the file for editing (you can implement your editor functionality here)
+        std::ifstream file(file_path);
+        std::string line;
+        while (std::getline(file, line)) {
+            std::cout << line << std::endl; // Print each line of the file to console (you can replace this with your editor display)
+        }
+        g_free(file_path);
+    }
+}
+
 int main(int argc, char *argv[]) {
     // Initialize GTK
     gtk_init(&argc, &argv);
@@ -104,6 +120,8 @@ int main(int argc, char *argv[]) {
 
     // Connect signals to button clicks
     g_signal_connect(button_open_folder, "clicked", G_CALLBACK(on_open_folder_clicked), tree_store);
+    // Connect signal for when a file is selected
+    g_signal_connect(tree_view, "row-activated", G_CALLBACK(on_file_selected), tree_store);
 
     // Add buttons to the sidebar
     gtk_box_pack_start(GTK_BOX(sidebar_box), button_open_folder, FALSE, FALSE, 0);
