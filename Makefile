@@ -52,7 +52,7 @@ OBJECTS_DIR   = ./
 
 ####### Files
 
-SOURCES       = stable/Kilt.cpp 
+SOURCES       = Kilt.cpp 
 OBJECTS       = Kilt.o
 DIST          = /usr/lib64/qt6/mkspecs/features/spec_pre.prf \
 		/usr/lib64/qt6/mkspecs/common/unix.conf \
@@ -100,6 +100,7 @@ DIST          = /usr/lib64/qt6/mkspecs/features/spec_pre.prf \
 		/usr/lib64/qt6/mkspecs/features/qt_config.prf \
 		/usr/lib64/qt6/mkspecs/linux-g++/qmake.conf \
 		/usr/lib64/qt6/mkspecs/features/spec_post.prf \
+		.qmake.stash \
 		/usr/lib64/qt6/mkspecs/features/exclusive_builds.prf \
 		/usr/lib64/qt6/mkspecs/features/toolchain.prf \
 		/usr/lib64/qt6/mkspecs/features/default_pre.prf \
@@ -120,7 +121,7 @@ DIST          = /usr/lib64/qt6/mkspecs/features/spec_pre.prf \
 		/usr/lib64/qt6/mkspecs/features/exceptions.prf \
 		/usr/lib64/qt6/mkspecs/features/yacc.prf \
 		/usr/lib64/qt6/mkspecs/features/lex.prf \
-		Kilt.pro  stable/Kilt.cpp
+		Kilt.pro  Kilt.cpp
 QMAKE_TARGET  = Kilt
 DESTDIR       = 
 TARGET        = Kilt
@@ -178,6 +179,7 @@ Makefile: Kilt.pro /usr/lib64/qt6/mkspecs/linux-g++/qmake.conf /usr/lib64/qt6/mk
 		/usr/lib64/qt6/mkspecs/features/qt_config.prf \
 		/usr/lib64/qt6/mkspecs/linux-g++/qmake.conf \
 		/usr/lib64/qt6/mkspecs/features/spec_post.prf \
+		.qmake.stash \
 		/usr/lib64/qt6/mkspecs/features/exclusive_builds.prf \
 		/usr/lib64/qt6/mkspecs/features/toolchain.prf \
 		/usr/lib64/qt6/mkspecs/features/default_pre.prf \
@@ -249,6 +251,7 @@ Makefile: Kilt.pro /usr/lib64/qt6/mkspecs/linux-g++/qmake.conf /usr/lib64/qt6/mk
 /usr/lib64/qt6/mkspecs/features/qt_config.prf:
 /usr/lib64/qt6/mkspecs/linux-g++/qmake.conf:
 /usr/lib64/qt6/mkspecs/features/spec_post.prf:
+.qmake.stash:
 /usr/lib64/qt6/mkspecs/features/exclusive_builds.prf:
 /usr/lib64/qt6/mkspecs/features/toolchain.prf:
 /usr/lib64/qt6/mkspecs/features/default_pre.prf:
@@ -288,7 +291,7 @@ distdir: FORCE
 	@test -d $(DISTDIR) || mkdir -p $(DISTDIR)
 	$(COPY_FILE) --parents $(DIST) $(DISTDIR)/
 	$(COPY_FILE) --parents /usr/lib64/qt6/mkspecs/features/data/dummy.cpp $(DISTDIR)/
-	$(COPY_FILE) --parents stable/Kilt.cpp $(DISTDIR)/
+	$(COPY_FILE) --parents Kilt.cpp $(DISTDIR)/
 
 
 clean: compiler_clean 
@@ -324,8 +327,14 @@ compiler_moc_header_make_all:
 compiler_moc_header_clean:
 compiler_moc_objc_header_make_all:
 compiler_moc_objc_header_clean:
-compiler_moc_source_make_all:
+compiler_moc_source_make_all: Kilt.moc
 compiler_moc_source_clean:
+	-$(DEL_FILE) Kilt.moc
+Kilt.moc: Kilt.cpp \
+		moc_predefs.h \
+		/usr/lib64/qt6/libexec/moc
+	/usr/lib64/qt6/libexec/moc $(DEFINES) --include /home/httpanimations/Desktop/Kilt/stable/moc_predefs.h -I/usr/lib64/qt6/mkspecs/linux-g++ -I/home/httpanimations/Desktop/Kilt/stable -I/home/httpanimations/Desktop/Kilt/stable -I/usr/include/qt6 -I/usr/include/qt6/QtWidgets -I/usr/include/qt6/QtGui -I/usr/include/qt6/QtCore -I/usr/include/c++/13 -I/usr/include/c++/13/x86_64-redhat-linux -I/usr/include/c++/13/backward -I/usr/lib/gcc/x86_64-redhat-linux/13/include -I/usr/local/include -I/usr/include Kilt.cpp -o Kilt.moc
+
 compiler_uic_make_all:
 compiler_uic_clean:
 compiler_yacc_decl_make_all:
@@ -334,12 +343,12 @@ compiler_yacc_impl_make_all:
 compiler_yacc_impl_clean:
 compiler_lex_make_all:
 compiler_lex_clean:
-compiler_clean: compiler_moc_predefs_clean 
+compiler_clean: compiler_moc_predefs_clean compiler_moc_source_clean 
 
 ####### Compile
 
-Kilt.o: stable/Kilt.cpp 
-	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o Kilt.o stable/Kilt.cpp
+Kilt.o: Kilt.cpp 
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o Kilt.o Kilt.cpp
 
 ####### Install
 
