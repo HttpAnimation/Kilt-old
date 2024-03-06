@@ -108,16 +108,15 @@ int main(int argc, char *argv[]) {
     GtkWidget *window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
     gtk_window_set_title(GTK_WINDOW(window), "Kilt IDE (VSC Style)");
     gtk_window_set_default_size(GTK_WINDOW(window), 800, 600);
-    gtk_window_set_resizable(GTK_WINDOW(window), FALSE); // Prevent resizing
     g_signal_connect(window, "destroy", G_CALLBACK(gtk_main_quit), NULL);
 
-    // Create a box layout
-    GtkWidget *box = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 0);
-    gtk_container_add(GTK_CONTAINER(window), box);
+    // Create a grid layout
+    GtkWidget *grid = gtk_grid_new();
+    gtk_container_add(GTK_CONTAINER(window), grid);
 
     // Create a vertical box layout for the sidebar
     GtkWidget *sidebar_box = gtk_box_new(GTK_ORIENTATION_VERTICAL, 0);
-    gtk_box_pack_start(GTK_BOX(box), sidebar_box, FALSE, TRUE, 0);
+    gtk_grid_attach(GTK_GRID(grid), sidebar_box, 0, 0, 1, 1);
 
     // Create buttons
     GtkWidget *button_open_folder = gtk_button_new_with_label("Open Folder");
@@ -136,7 +135,7 @@ int main(int argc, char *argv[]) {
     // Create a scrolled window for the file tree view
     GtkWidget *scrolled_window = gtk_scrolled_window_new(NULL, NULL);
     gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(scrolled_window), GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC);
-    gtk_box_pack_start(GTK_BOX(box), scrolled_window, TRUE, TRUE, 0);
+    gtk_grid_attach(GTK_GRID(grid), scrolled_window, 1, 0, 1, 1);
 
     GtkTreeViewColumn *column = gtk_tree_view_column_new_with_attributes("Files", gtk_cell_renderer_text_new(), "text", 0, NULL);
     gtk_tree_view_append_column(GTK_TREE_VIEW(tree_view), column);
@@ -145,7 +144,9 @@ int main(int argc, char *argv[]) {
 
     // Create a text view for editing files
     GtkWidget *text_view = gtk_text_view_new();
-    gtk_box_pack_start(GTK_BOX(box), text_view, TRUE, TRUE, 0);
+    gtk_grid_attach(GTK_GRID(grid), text_view, 0, 1, 2, 1);
+    gtk_widget_set_vexpand(text_view, TRUE); // Make the text view expand to fill available space
+    gtk_widget_set_hexpand(text_view, TRUE);
 
     // Connect signal for file selection
     g_signal_connect(tree_view, "cursor-changed", G_CALLBACK(on_file_selected), text_view);
