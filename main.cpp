@@ -3,15 +3,24 @@
 #include <dirent.h>
 #include <vector>
 
+// Struct to hold file information
+struct FileData {
+    std::string name;
+    std::string path;
+};
+
 // Function to list files in a directory
-std::vector<std::string> listFilesInDirectory(const std::string &directory) {
-    std::vector<std::string> files;
+std::vector<FileData> listFilesInDirectory(const std::string &directory) {
+    std::vector<FileData> files;
     DIR *dir;
     struct dirent *ent;
     if ((dir = opendir(directory.c_str())) != NULL) {
         while ((ent = readdir(dir)) != NULL) {
             if (ent->d_type == DT_REG) {
-                files.push_back(std::string(ent->d_name));
+                FileData file;
+                file.name = std::string(ent->d_name);
+                file.path = directory + "/" + file.name;
+                files.push_back(file);
             }
         }
         closedir(dir);
@@ -47,15 +56,15 @@ void on_open_folder_clicked(GtkWidget *widget, gpointer data) {
         g_print ("Folder selected: %s\n", folder_path);
 
         // List files in the selected folder
-        std::vector<std::string> files = listFilesInDirectory(folder_path);
+        std::vector<FileData> files = listFilesInDirectory(folder_path);
 
         // Add files to the sidebar
         GtkTreeIter iter;
-        GtkTreeModel *model = GTK_TREE_MODEL(data);
-        gtk_tree_store_clear(GTK_TREE_STORE(model));
+        GtkTreeStore *model = GTK_TREE_STORE(data);
+        gtk_tree_store_clear(model);
         for (const auto &file : files) {
-            gtk_tree_store_append(GTK_TREE_STORE(model), &iter, NULL);
-            gtk_tree_store_set(GTK_TREE_STORE(model), &iter, 0, file.c_str(), -1);
+            gtk_tree_store_append(model, &iter, NULL);
+            gtk_tree_store_set(model, &iter, 0, file.name.c_str(), 1, file.path.c_str(), -1);
         }
 
         g_free (folder_path);
@@ -86,7 +95,7 @@ int main(int argc, char *argv[]) {
     GtkWidget *button_open_folder = gtk_button_new_with_label("Open Folder");
 
     // Create the tree view
-    GtkTreeStore *tree_store = gtk_tree_store_new(1, G_TYPE_STRING);
+    GtkTreeStore *tree_store = gtk_tree_store_new(2, G_TYPE_STRING, G_TYPE_STRING);
     GtkWidget *tree_view = gtk_tree_view_new_with_model(GTK_TREE_MODEL(tree_store));
     g_object_unref(tree_store); // Free tree store when the view is destroyed
 
